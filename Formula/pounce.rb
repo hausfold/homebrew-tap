@@ -5,6 +5,7 @@ class Pounce < Formula
   url "https://github.com/nebelhaus/pounce/releases/download/v#{version}/pounce-v#{version}-macos.tar.gz"
   sha256 "eff706e73b867b5f0b22484c7ee77b9ddc6aa75be79b6bf2391641e4ec1b248e"
   license "MIT"
+  revision 1
 
   # The version/sha256 lines above are CI-owned: pounce's release workflow
   # rewrites them on every date-versioned tag (nebelhaus/pounce, release.yml) and
@@ -42,18 +43,54 @@ class Pounce < Formula
       SH
       (bin/"pounce-#{id}").chmod 0555
     end
-  end
 
-  service do
-    # Mirrors the launchd agent the nebelhaus rice runs: the daemon holds the
-    # window, clipboard history, and the Accessibility grant. Run the binary
-    # inside the bundle (not the bin symlink) so Bundle.main resolves.
-    run [opt_prefix/"Pounce.app/Contents/MacOS/pounce", "--daemon"]
-    keep_alive true
-    process_type :interactive
-    log_path var/"log/pounce.log"
-    error_log_path var/"log/pounce.log"
-    environment_variables LANG: "en_US.UTF-8"
+    # Homebrew's service DSL cannot currently emit AssociatedBundleIdentifiers,
+    # so install the launch agent explicitly. That association makes macOS show
+    # this background item as "Pounce"; without it, System Settings falls back
+    # to the legal name on Pounce's Developer ID signing certificate.
+    (prefix/"homebrew.mxcl.pounce.plist").write <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+        <key>Label</key>
+        <string>homebrew.mxcl.pounce</string>
+        <key>ProgramArguments</key>
+        <array>
+          <string>#{opt_prefix}/Pounce.app/Contents/MacOS/pounce</string>
+          <string>--daemon</string>
+        </array>
+        <key>AssociatedBundleIdentifiers</key>
+        <array>
+          <string>com.local.pounce</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <true/>
+        <key>ProcessType</key>
+        <string>Interactive</string>
+        <key>StandardOutPath</key>
+        <string>#{var}/log/pounce.log</string>
+        <key>StandardErrorPath</key>
+        <string>#{var}/log/pounce.log</string>
+        <key>EnvironmentVariables</key>
+        <dict>
+          <key>LANG</key>
+          <string>en_US.UTF-8</string>
+        </dict>
+        <key>LimitLoadToSessionType</key>
+        <array>
+          <string>Aqua</string>
+          <string>Background</string>
+          <string>LoginWindow</string>
+          <string>StandardIO</string>
+          <string>System</string>
+        </array>
+      </dict>
+      </plist>
+    PLIST
   end
 
   def caveats
