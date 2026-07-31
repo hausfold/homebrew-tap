@@ -1,6 +1,6 @@
 cask "perch" do
-  version "2026.07.30-1"
-  sha256 "fd58ab83d99286c56f3a8b007449ed28d604a1aff8fa1c8f630c4a70bfb8c64e"
+  version "2026.07.31"
+  sha256 "539777de4435959410b773d45bbfd045fc07e5b4a852c8b59dbceb74253ff7e6"
 
   url "https://github.com/nebelhaus/perch/releases/download/v#{version}/perch-v#{version}-macos.zip"
   name "Perch"
