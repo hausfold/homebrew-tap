@@ -1,0 +1,21 @@
+# CLAUDE.md
+
+@AGENTS.md
+
+<!--
+Everything above this line is imported from AGENTS.md — the one set of project
+instructions, shared by every harness. Put project rules THERE, not here, or
+Codex/OpenCode/Copilot silently run without them.
+
+Only Claude-specific wiring belongs below.
+-->
+
+## Claude-specific wiring (nothing project-level here)
+
+| Thing | Where | Notes |
+|---|---|---|
+| Project instructions | `AGENTS.md`, imported above | Claude Code reads only `CLAUDE.md`, so this file exists purely to import it. |
+| Session bootstrap | none | Ruby formulae, no flake and no build here, so there's nothing for `.agents/setup.sh` to bootstrap. See `.agents/README.md`. |
+| Worktree hooks | `~/.claude/settings.json` (yours, not the repo's) → `wt create` / `wt remove` | Claude owns that file and rewrites it, so no repo in the family touches it. |
+
+The full cross-harness map is [`.agents/README.md`](./.agents/README.md).
