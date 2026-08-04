@@ -10,8 +10,8 @@ cask "trill" do
   # The version/sha256 lines above WERE CI-owned: trill's release workflow rewrote
   # them on every date-versioned tag (nebelhaus/trill, release.yml) and pushed here
   # over a deploy key. That repository is archived as of 2026-08-04, so nothing
-  # writes this file automatically any more — 2026.08.04 is the last release, and
-  # these lines are now hand-owned.
+  # writes this file automatically any more: whatever version stands above is the
+  # last one, and these lines are hand-owned from here.
   livecheck do
     url :url
     strategy :github_latest
@@ -32,7 +32,7 @@ cask "trill" do
   # release.yml), so Gatekeeper clears it on first launch — no quarantine hack.
 
   caveats <<~EOS
-    Trill is no longer developed — 2026.08.04 is the final release. It keeps
+    Trill is no longer developed — this is its final release. It keeps
     working; there just won't be another. https://github.com/nebelhaus/trill
 
     The live Messages provider reads ~/Library/Messages/chat.db (always
