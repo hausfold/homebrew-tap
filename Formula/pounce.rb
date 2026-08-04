@@ -1,9 +1,9 @@
 class Pounce < Formula
   desc "Summon, aim, pounce - a native, scriptable command palette for macOS"
   homepage "https://github.com/nebelhaus/pounce"
-  version "2026.08.03-1"
+  version "2026.08.04"
   url "https://github.com/nebelhaus/pounce/releases/download/v#{version}/pounce-v#{version}-macos.tar.gz"
-  sha256 "ca46fe755499135cfb3baa403439b2881ef7f13b622b5d7d4b98a49b12b02c31"
+  sha256 "9fc070c4ed76ada29085e0593206cef6b502f62e90b8c01ae1856b4232fb76d4"
   license "MIT"
 
   # The version/sha256 lines above are CI-owned: pounce's release workflow
