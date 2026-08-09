@@ -1,6 +1,6 @@
 cask "perch" do
-  version "2026.08.08-2"
-  sha256 "b34f3b36e82e13eb0c0dd1b7d78ff04c482045ed0aeaf034f4e60a8486c19249"
+  version "2026.08.09-1"
+  sha256 "b7364ba98a701e3a0a89358f216f0395a4261a92946d365f3215d2a5f2d44aa7"
 
   url "https://github.com/hausfold/perch/releases/download/v#{version}/perch-v#{version}-macos.zip"
   name "Perch"
