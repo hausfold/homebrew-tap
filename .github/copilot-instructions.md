@@ -8,7 +8,7 @@ duplication below; if the two ever disagree, `AGENTS.md` wins.)
 The short version:
 
 - This is the Homebrew tap for the [nebelhaus](https://github.com/nebelhaus)
-  family: `Formula/pounce.rb`, `Casks/trill.rb`, `Casks/perch.rb`.
+  family: `Formula/pounce.rb`, `Casks/perch.rb`.
 - **This repo is CI-owned. Never hand-edit a `version`, `url` or `sha256`
   line.** Each project's release workflow rewrites them here over a deploy key
   when a `v<date>` tag lands. A hand-typed version is stale the next time CI

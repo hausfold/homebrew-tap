@@ -5,7 +5,7 @@ Homebrew tap for the [nebelhaus](https://github.com/nebelhaus) family.
 ```sh
 brew tap nebelhaus/tap
 brew install pounce           # formula (builds from source)
-brew install --cask trill     # cask (prebuilt app)
+brew install --cask perch     # cask (prebuilt app)
 ```
 
 | formula | what it is |
@@ -14,7 +14,7 @@ brew install --cask trill     # cask (prebuilt app)
 
 | cask | what it is |
 |---|---|
-| [`trill`](Casks/trill.rb) | your Messages, native — a provider-neutral iMessage/SMS/RCS client for macOS |
+| [`perch`](Casks/perch.rb) | a native macOS temporary file shelf that grows out of the MacBook notch |
 
 Formulae build from source (a single `swiftc` against system frameworks — just
 the Xcode Command Line Tools Homebrew already requires). Casks ship a prebuilt
