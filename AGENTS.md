@@ -2,8 +2,8 @@
 
 **`nebelhaus/homebrew-tap`** — the Homebrew tap for the
 [nebelhaus](https://github.com/nebelhaus) family: `Formula/pounce.rb` (builds
-from a signed release tarball) and `Casks/trill.rb` / `Casks/perch.rb` (prebuilt,
-notarized `.app`s).
+from a signed release tarball) and `Casks/perch.rb` (a prebuilt,
+notarized `.app`).
 
 **This file is the one set of instructions, for every agent.** Claude Code,
 Codex, OpenCode, Cursor, Copilot — TUI or GUI — all read *this*, directly or
@@ -16,7 +16,7 @@ needs per-client wiring, the wiring lives in that client's own file and the
 
 **Do not hand-edit a `version`, `url` or `sha256` line. Ever.** Each project's
 release workflow rewrites them here over a deploy key when a date-versioned
-`v<date>` tag lands — pounce's `release.yml`, trill's, perch's. A hand-typed
+`v<date>` tag lands — pounce's `release.yml` and perch's. A hand-typed
 version is wrong the moment CI runs again, and a hand-typed sha256 ships users a
 formula that refuses to install.
 
@@ -38,7 +38,7 @@ here.
 | Want to change… | Repo |
 |---|---|
 | a formula/cask's install logic, caveats or dependencies | here ← **you are here** |
-| what a tool does, or a bug in it | that tool's repo (`pounce`, `trill`, `perch`) |
+| what a tool does, or a bug in it | that tool's repo (`pounce`, `perch`) |
 | how a release is built, signed and notarized | that tool's `.github/workflows/release.yml` |
 | how the rice installs a tool (the flake path, not brew) | `nebelhaus` → `modules/<tool>` |
 | the version of anything | nowhere by hand — `bench release <repo>` from the workshop |
