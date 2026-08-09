@@ -1,13 +1,13 @@
 class Pounce < Formula
   desc "Summon, aim, pounce - a native, scriptable command palette for macOS"
-  homepage "https://github.com/nebelhaus/pounce"
+  homepage "https://github.com/hausfold/pounce"
   version "2026.08.08-2"
-  url "https://github.com/nebelhaus/pounce/releases/download/v#{version}/pounce-v#{version}-macos.tar.gz"
+  url "https://github.com/hausfold/pounce/releases/download/v#{version}/pounce-v#{version}-macos.tar.gz"
   sha256 "6db57fce7bf9b9eb78921549e20afa777e997aa49a3c121e6441adcab563577f"
   license "MIT"
 
   # The version/sha256 lines above are CI-owned: pounce's release workflow
-  # rewrites them on every date-versioned tag (nebelhaus/pounce, release.yml) and
+  # rewrites them on every date-versioned tag (hausfold/pounce, release.yml) and
   # pushes here over a deploy key. Hand-edit only to bootstrap.
   livecheck do
     url :stable
@@ -21,7 +21,7 @@ class Pounce < Formula
 
   def install
     # Prebuilt bundle from the release tarball: Pounce.app is already signed with
-    # our Developer ID and notarized (nebelhaus/pounce, release.yml). We only
+    # our Developer ID and notarized (hausfold/pounce, release.yml). We only
     # place it and the command scripts — no compile step anymore.
     prefix.install "Pounce.app"
     bin.install_symlink prefix/"Pounce.app/Contents/MacOS/pounce"

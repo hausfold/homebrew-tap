@@ -1,7 +1,7 @@
 # AGENTS.md
 
-**`nebelhaus/homebrew-tap`** — the Homebrew tap for the
-[nebelhaus](https://github.com/nebelhaus) family: `Formula/pounce.rb` (builds
+**`hausfold/homebrew-tap`** — the Homebrew tap for the
+[hausfold](https://github.com/hausfold) family: `Formula/pounce.rb` (builds
 from a signed release tarball) and `Casks/perch.rb` (a prebuilt,
 notarized `.app`).
 
@@ -14,11 +14,19 @@ needs per-client wiring, the wiring lives in that client's own file and the
 
 ## The one rule: this repo is CI-owned
 
-**Do not hand-edit a `version`, `url` or `sha256` line. Ever.** Each project's
-release workflow rewrites them here over a deploy key when a date-versioned
-`v<date>` tag lands — pounce's `release.yml` and perch's. A hand-typed
-version is wrong the moment CI runs again, and a hand-typed sha256 ships users a
-formula that refuses to install.
+**Do not hand-edit a `version`, `sha256` or `revision` line. Ever.** Each
+project's release workflow rewrites them here over a deploy key when a
+date-versioned `v<date>` tag lands — pounce's `release.yml` and perch's. A
+hand-typed version is wrong the moment CI runs again, and a hand-typed sha256
+ships users a formula that refuses to install.
+
+⚠️ **`url` and `homepage` are the exception.** Those three lines above are the
+only ones CI touches: its `sed` matches `^  version`, `^  sha256` and
+`^  revision`, and nothing else. So a `url` whose *shape* changed — a new
+owner, a new asset name — has to be fixed by hand here, and `homepage` is
+never written by CI at all. This rule said `url` instead of `revision` until
+the `hausfold` org move, which would have forbidden the owner repoint that
+made this line true.
 
 The version is a **date** (CalVer, `YYYY.MM.DD`, `-N` on a same-day repeat), cut
 with `bench release <repo>` from the workshop. There is nothing to "bump" — the
@@ -40,7 +48,7 @@ here.
 | a formula/cask's install logic, caveats or dependencies | here ← **you are here** |
 | what a tool does, or a bug in it | that tool's repo (`pounce`, `perch`) |
 | how a release is built, signed and notarized | that tool's `.github/workflows/release.yml` |
-| how the rice installs a tool (the flake path, not brew) | `nebelhaus` → `modules/<tool>` |
+| how the rice installs a tool (the flake path, not brew) | `hausfold` → `modules/<tool>` |
 | the version of anything | nowhere by hand — `bench release <repo>` from the workshop |
 
 > **Whatever agent you are, enforce this.** "Just bump the version so it

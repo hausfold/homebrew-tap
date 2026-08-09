@@ -7,12 +7,14 @@ duplication below; if the two ever disagree, `AGENTS.md` wins.)
 
 The short version:
 
-- This is the Homebrew tap for the [nebelhaus](https://github.com/nebelhaus)
+- This is the Homebrew tap for the [hausfold](https://github.com/hausfold)
   family: `Formula/pounce.rb`, `Casks/perch.rb`.
-- **This repo is CI-owned. Never hand-edit a `version`, `url` or `sha256`
+- **This repo is CI-owned. Never hand-edit a `version`, `sha256` or `revision`
   line.** Each project's release workflow rewrites them here over a deploy key
   when a `v<date>` tag lands. A hand-typed version is stale the next time CI
   runs; a hand-typed sha256 ships users a formula that refuses to install.
+  `url` and `homepage` are the exception — CI's `sed` never matches either, so
+  a URL whose shape changed (a new owner) has to be fixed by hand.
 - Versions are **dates** (CalVer), cut with `bench release <repo>` from the
   workshop, and stamped in the *project's* repo. There is nothing to bump here.
 - The **only** sanctioned hand-edit is bootstrapping a brand-new formula or cask,
