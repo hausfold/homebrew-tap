@@ -1,9 +1,9 @@
 # AGENTS.md
 
 **`hausfold/homebrew-tap`** — the Homebrew tap for the
-[hausfold](https://github.com/hausfold) family: `Formula/pounce.rb` (builds
-from a signed release tarball) and `Casks/perch.rb` (a prebuilt,
-notarized `.app`).
+[hausfold](https://github.com/hausfold) family: `Formula/pounce.rb` (a prebuilt,
+notarized `.app` plus its CLI, from a signed release tarball) and
+`Casks/perch.rb` (a prebuilt, notarized `.app`).
 
 **This file is the one set of instructions, for every agent.** Claude Code,
 Codex, OpenCode, Cursor, Copilot — TUI or GUI — all read *this*, directly or
@@ -58,10 +58,12 @@ here.
 
 ## Conventions
 
-- **Formulae build from source; casks ship a prebuilt `.app`.** Both artifacts
-  are already Developer-ID signed and Apple-notarized by CI, so no cask needs a
-  quarantine workaround — if you find yourself reaching for one, something
-  upstream is unsigned and *that's* the bug.
+- **Nothing here compiles — formula and cask both place a prebuilt `.app`.**
+  Pounce is a formula only because it installs more than an app (the CLI, the
+  command scripts, a launch agent); perch is a cask because it is just the app.
+  Both artifacts are already Developer-ID signed and Apple-notarized by CI, so
+  no cask needs a quarantine workaround — if you find yourself reaching for one,
+  something upstream is unsigned and *that's* the bug.
 - Issues and PRs about the *software* belong in the project repos; this repo's
   README says so and should keep saying so.
 - Keep `README.md`'s formula/cask tables in step when a tool is added or
