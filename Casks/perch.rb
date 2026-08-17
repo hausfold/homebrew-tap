@@ -11,10 +11,9 @@ cask "perch" do
   # rewrites them on every date-versioned tag (hausfold/perch, release.yml) and
   # pushes here over a deploy key. Hand-edit only to bootstrap.
   #
-  # BOOTSTRAP: perch has not been released yet, so version + sha256 are
-  # placeholders (the release URL 404s until then). The first `bench release
-  # perch` stamps a real v<date> tag; CI's bump-tap sed replaces both quoted
-  # lines with the released zip's version + hash.
+  # Bootstrapping is over. CI has been writing those two lines since
+  # v2026.08.03-1 (2026-08-03), so they are a real released zip's version and
+  # hash, not the placeholders this comment used to warn about.
   livecheck do
     url :url
     strategy :github_latest
