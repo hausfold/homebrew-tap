@@ -5,12 +5,10 @@
 release tarball carrying a prebuilt `Pounce.app`) and `Casks/perch.rb` (a
 prebuilt, notarized `.app`).
 
-**This file is the one set of instructions, for every agent.** Claude Code,
-Codex, OpenCode, Cursor, Copilot — TUI or GUI — all read *this*, directly or
-through a one-line pointer. Nothing harness-specific belongs here; when a flow
-needs per-client wiring, the wiring lives in that client's own file and the
-*content* stays here or in `.agents/`. The map of which tool reads which file is
-[`.agents/README.md`](./.agents/README.md).
+**This file is the one set of instructions, for every agent** — Claude Code,
+Codex, OpenCode, Cursor, Copilot alike, directly or through a one-line pointer.
+Per-client wiring lives in that client's own file; the content stays here or in
+[`.agents/`](./.agents/README.md).
 
 ## The one rule: this repo is CI-owned
 
@@ -22,11 +20,9 @@ ships users a formula that refuses to install.
 
 ⚠️ **`url` and `homepage` are the exception.** Those three lines above are the
 only ones CI touches: its `sed` matches `^  version`, `^  sha256` and
-`^  revision`, and nothing else. So a `url` whose *shape* changed — a new
-owner, a new asset name — has to be fixed by hand here, and `homepage` is
-never written by CI at all. This rule said `url` instead of `revision` until
-the `hausfold` org move, which would have forbidden the owner repoint that
-made this line true.
+`^  revision`, and nothing else. So a `url` whose *shape* changed — a new owner,
+a new asset name — has to be fixed by hand here, and `homepage` is never written
+by CI at all.
 
 The version is a **date** (CalVer, `YYYY.MM.DD`, `-N` on a same-day repeat), cut
 with `bench release <repo>` from the workshop. There is nothing to "bump" — the
@@ -48,7 +44,7 @@ here.
 | a formula/cask's install logic, caveats or dependencies | here ← **you are here** |
 | what a tool does, or a bug in it | that tool's repo (`pounce`, `perch`) |
 | how a release is built, signed and notarized | that tool's `.github/workflows/release.yml` |
-| how the rice installs a tool (the flake path, not brew) | `hausfold` → `modules/<tool>` |
+| how haus installs a tool (the flake path, not brew) | `haus` → the room that owns it (`launcher` for pounce, `shelf` for perch) |
 | the version of anything | nowhere by hand — `bench release <repo>` from the workshop |
 
 > **Whatever agent you are, enforce this.** "Just bump the version so it
