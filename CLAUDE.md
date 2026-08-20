@@ -16,6 +16,6 @@ Only Claude-specific wiring belongs below.
 |---|---|---|
 | Project instructions | `AGENTS.md`, imported above | Claude Code reads only `CLAUDE.md`, so this file exists purely to import it. |
 | Session bootstrap | none | Ruby formulae, no flake and no build here, so there's nothing for `.agents/setup.sh` to bootstrap. See `.agents/README.md`. |
-| Worktree hooks | `~/.claude/settings.json` (yours, not the repo's) → `holt hook create` / `holt hook remove` | Claude owns that file and rewrites it, so no repo in the family touches it. |
+| Worktree hooks | `~/.claude/settings.json` (yours, not the repo's) → `holt hook create` / `holt hook remove` | Claude owns and rewrites that file, so haus merges these two keys in at activation rather than owning it. Self-healing on every rebuild; no repo in the family hand-edits it. |
 
 The full cross-harness map is [`.agents/README.md`](./.agents/README.md).
