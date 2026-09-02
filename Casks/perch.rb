@@ -38,6 +38,20 @@ cask "perch" do
   # inside the bundle.
   binary "#{appdir}/Perch.app/Contents/MacOS/perch-cli", target: "perch"
 
+  # The only place a cask can talk to a standalone user, so it's where
+  # `perch skill install` gets named (workshop docs/agent-surface.md,
+  # "Distribution"). Deliberately worded as optional: the verb exits 1 on a Mac
+  # with no agent client at all, and a haus machine already has the skill from
+  # haus.ai.skill. Not a CI-owned line - hand-edit this freely.
+  caveats <<~EOS
+    Optional - teach this Mac's coding agents about the shelf:
+      perch skill install
+
+    It writes perch's skill into every agent client it finds (Claude Code,
+    Codex, OpenCode, pi) and refuses rather than overwrites what's already
+    there.
+  EOS
+
   # Perch is signed with our Developer ID and notarized by Apple (hausfold/perch,
   # release.yml), so Gatekeeper clears it on first launch — no quarantine hack.
 end
