@@ -9,16 +9,28 @@ cask "perch" do
 
   # The version/sha256 lines above are CI-owned: perch's release workflow
   # rewrites them on every date-versioned tag (hausfold/perch, release.yml) and
-  # pushes here over a deploy key. Hand-edit only to bootstrap.
-  #
-  # Bootstrapping is over. CI has been writing those two lines since
-  # v2026.08.03-1 (2026-08-03), so they are a real released zip's version and
-  # hash, not the placeholders this comment used to warn about.
+  # pushes here over a deploy key. Hand-edit only to bootstrap; the pair above
+  # is a real released zip's version and hash, written by that workflow.
   livecheck do
     url :url
     strategy :github_latest
   end
 
+  # Apple Silicon only. Every Perch.app the release workflow has published
+  # carries an arm64 slice and no other, so without this line brew installs
+  # the app onto an Intel Mac without a word and the first double-click is
+  # macOS saying "not supported on this Mac" about a download that had no
+  # business landing there. pounce's formula carries the same pair, in the
+  # same order — `arch` before `macos` is what Homebrew's stanza-order cop
+  # wants.
+  #
+  # The one way this line is wrong: Homebrew resolves it against
+  # `Hardware::CPU.type`, which reports the TRANSLATED arch, so an M-series
+  # Mac running a /usr/local Homebrew under Rosetta reports intel and is
+  # refused here — for an app that would have run natively. The cask DSL has
+  # no physical-CPU predicate, and refusing that layout is the cheaper of the
+  # two mistakes: the other one ends in a dead app.
+  depends_on arch: :arm64
   depends_on macos: :sonoma
 
   app "Perch.app"
