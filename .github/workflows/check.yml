@@ -1,0 +1,64 @@
+# The tap had no gate for as long as it held nothing but placement metadata: a
+# formula that only unpacks a notarized .app has no failure a test could catch
+# that `brew install` wouldn't catch first, on the one machine that matters.
+#
+# `Formula/scruff.rb` changed that. It COMPILES — a Go build, an ldflags stamp
+# and a test block — and nobody on this family's machines has Homebrew
+# installed to try it against, so without this job a broken formula is
+# discovered by whoever `brew install`s it next. That is the whole scope: the
+# entry that builds, on the platform its users are on.
+#
+# pounce and perch stay outside it deliberately. Their lines are CI-owned and
+# rewritten by their own release workflows against artifacts that were already
+# built, signed and notarized upstream, and neither can be installed on a
+# runner without downloading a real release and putting an .app on disk to
+# prove something their release gate proved better.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: check-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  formula:
+    name: scruff formula
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Homebrew resolves `hausfold/tap/scruff` out of its own Taps directory
+      # and nowhere else, so the checkout has to BE that tap rather than sit
+      # beside it. A symlink is enough; `brew tap` would clone main from the
+      # remote and test the wrong tree.
+      - name: Mount this checkout as hausfold/tap
+        run: |
+          brew --version
+          TAP="$(brew --repository)/Library/Taps/hausfold/homebrew-tap"
+          mkdir -p "$(dirname "$TAP")"
+          ln -s "$GITHUB_WORKSPACE" "$TAP"
+          brew tap | grep -qx 'hausfold/tap'
+
+      - name: brew style
+        run: brew style hausfold/tap/scruff
+
+      # `--online` is what checks the homepage and the tag tarball actually
+      # resolve; `--strict` is left off on purpose, because its extra cops are
+      # written for homebrew-core's house style and a tap has no way to argue
+      # with one from here.
+      - name: brew audit
+        run: brew audit --online hausfold/tap/scruff
+
+      - name: brew install
+        run: brew install --build-from-source --verbose hausfold/tap/scruff
+
+      - name: brew test
+        run: brew test hausfold/tap/scruff
