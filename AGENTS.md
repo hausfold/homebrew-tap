@@ -8,10 +8,11 @@ build of the CLI from its tag tarball. No tool bug is fixed here. Wiring:
 
 ## CI-owned
 
-- **Never hand-edit a `version`, `sha256`, `url` or `revision` line** — each
-  tool's `release.yml` rewrites them on its release tag. Its `sed` touches
-  nothing else, so a `url` or `homepage` whose shape changed is fixed by hand,
-  never bumped.
+- **Never hand-edit a `version`, `sha256`, `url` or `revision` line that CI
+  owns for that entry** — each tool's `release.yml` rewrites its own on the
+  release tag. The `sed` touches nothing else, so a `homepage`, or a `url` CI
+  does *not* own (pounce's and perch's, which interpolate `#{version}`), whose
+  shape changed is fixed by hand, never bumped.
 - Which lines that is differs by entry, and the difference is load-bearing:
   pounce and perch own `version` + `sha256`, because their URLs interpolate the
   version out of an artifact filename Homebrew cannot parse. **scruff owns
@@ -30,9 +31,11 @@ build of the CLI from its tag tarball. No tool bug is fixed here. Wiring:
 `brew install --build-from-source` and `brew test` — **over
 `Formula/scruff.rb` alone**, on a macOS runner. It exists because that entry
 both compiles and is rewritten by a bot: scruff's release pushes a new
-`url`/`sha256` here with nobody watching, and the gate runs on that push, so a
-short tarball or a build that stopped working is caught in minutes rather than
-by whoever `brew install`s next. pounce and perch stay outside it: their
+`url`/`sha256` here with nobody watching. ⚠️ It does **not** gate that push and
+cannot — a deploy-key push to `main` *is* the formula, with no bottle to fall
+back on. It runs on that push and shortens the window from "until someone
+complains" to a few minutes, and it is a real merge condition only on a human
+PR. pounce and perch stay outside it: their
 release gates already built, signed and notarized what those entries place, and
 installing an `.app` on a runner proves less than that did. The workshop's
 [`docs/ci.md`](https://github.com/hausfold/workshop/blob/main/docs/ci.md) is the

@@ -21,10 +21,10 @@ Developer ID and notarized by Apple, on Apple Silicon running macOS Sonoma or
 newer. `scruff` is a single Go binary with nothing in it to sign, so it compiles
 here instead, and it runs anywhere Homebrew does.
 
-This repo holds the packaging metadata and nothing else. Every `url`, `version`
-and `sha256` in it is written by release CI, never by hand
-([the rule, in full](AGENTS.md)), so **bugs and feature requests belong in the
-tool's own repo**: [scruff](https://github.com/hausfold/scruff),
+This repo holds the packaging metadata and nothing else. Every `sha256` in it is
+written by release CI, along with whichever of `version` and `url` that entry
+leaves to CI, never by hand ([the rule, in full](AGENTS.md)), so **bugs and
+feature requests belong in the tool's own repo**: [scruff](https://github.com/hausfold/scruff),
 [pounce](https://github.com/hausfold/pounce),
 [perch](https://github.com/hausfold/perch).
 
