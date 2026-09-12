@@ -28,12 +28,13 @@ build of the CLI from its tag tarball. No tool bug is fixed here. Wiring:
 
 `.github/workflows/check.yml` runs `brew style`, `brew audit --online`,
 `brew install --build-from-source` and `brew test` — **over
-`Formula/scruff.rb` alone**, on a macOS runner. It exists because that formula
-compiles and because nobody on this family's machines has Homebrew installed to
-try it against locally; without it, a broken formula is found by whoever
-installs it next. pounce and perch stay outside it: their release gates already
-built, signed and notarized what those entries place, and installing an `.app`
-on a runner proves less than that did. The workshop's
+`Formula/scruff.rb` alone**, on a macOS runner. It exists because that entry
+both compiles and is rewritten by a bot: scruff's release pushes a new
+`url`/`sha256` here with nobody watching, and the gate runs on that push, so a
+short tarball or a build that stopped working is caught in minutes rather than
+by whoever `brew install`s next. pounce and perch stay outside it: their
+release gates already built, signed and notarized what those entries place, and
+installing an `.app` on a runner proves less than that did. The workshop's
 [`docs/ci.md`](https://github.com/hausfold/workshop/blob/main/docs/ci.md) is the
 family's rules; this gate follows them.
 

@@ -3,10 +3,14 @@
 # that `brew install` wouldn't catch first, on the one machine that matters.
 #
 # `Formula/scruff.rb` changed that. It COMPILES — a Go build, an ldflags stamp
-# and a test block — and nobody on this family's machines has Homebrew
-# installed to try it against, so without this job a broken formula is
-# discovered by whoever `brew install`s it next. That is the whole scope: the
-# entry that builds, on the platform its users are on.
+# and a test block — and its `url`/`sha256` pair is rewritten here by a BOT, on
+# every scruff release, with no human in the loop (hausfold/scruff, release.yml
+# `bump-tap`). A tarball that was served short, a tag whose shape moved, a
+# formula that stopped building against a newer Go: each of those lands on main
+# unattended and is otherwise discovered by whoever `brew install`s next. This
+# job runs on that push too, so the answer arrives in minutes instead. That is
+# the whole scope: the entry that builds, on the platform its users install it
+# from.
 #
 # pounce and perch stay outside it deliberately. Their lines are CI-owned and
 # rewritten by their own release workflows against artifacts that were already
