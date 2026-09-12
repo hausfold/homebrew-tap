@@ -38,6 +38,7 @@ class Scruff < Formula
     # (hausfold/scruff, Makefile and flake.nix). Without it `scruff --version`
     # reports the `0.1.0-dev` default baked into internal/commands/root.go, and
     # the test below is what keeps that honest.
+    #
     # `-s -w` is not written here: std_go_args prepends both to whatever it is
     # given (Homebrew's formula.rb, `ldflags = ["-s", "-w"].concat(...)`), and
     # passing them again puts each twice in the build log for no effect.
