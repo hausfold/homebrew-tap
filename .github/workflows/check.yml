@@ -1,0 +1,89 @@
+# The tap had no gate for as long as it held nothing but placement metadata: a
+# formula that only unpacks a notarized .app has no failure a test could catch
+# that `brew install` wouldn't catch first, on the one machine that matters.
+#
+# `Formula/scruff.rb` changed that. It COMPILES — a Go build, an ldflags stamp
+# and a test block — and its `url`/`sha256` pair is rewritten here by a BOT, on
+# every scruff release, with no human in the loop (hausfold/scruff, release.yml
+# `bump-tap`). A tarball that was served short, a tag whose shape moved, a
+# formula that stopped building against a newer Go: each of those lands on main
+# unattended and is otherwise discovered by whoever `brew install`s next.
+#
+# ⚠️ This job does not GATE that push and cannot — a deploy-key push to `main`
+# is the formula, immediately, with no bottle to fall back to. What it does is
+# run on that push and shorten the window from "until a user complains" to a
+# few minutes. It is a merge condition only for a human PR like the one that
+# added this file. That is the whole scope: the entry that builds, on the
+# platform its users install it from.
+#
+# pounce and perch stay outside it deliberately. Their lines are CI-owned and
+# rewritten by their own release workflows against artifacts that were already
+# built, signed and notarized upstream, and neither can be installed on a
+# runner without downloading a real release and putting an .app on disk to
+# prove something their release gate proved better.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: check-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  formula:
+    name: scruff formula
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Homebrew resolves `hausfold/tap/scruff` out of its own Taps directory
+      # and nowhere else, so the checkout has to BE that tap rather than sit
+      # beside it. A symlink is enough; `brew tap` would clone main from the
+      # remote and test the wrong tree.
+      - name: Mount this checkout as hausfold/tap
+        run: |
+          brew --version
+          TAP="$(brew --repository)/Library/Taps/hausfold/homebrew-tap"
+          mkdir -p "$(dirname "$TAP")"
+          ln -s "$GITHUB_WORKSPACE" "$TAP"
+          brew tap | grep -qx 'hausfold/tap'
+
+      - name: brew style
+        run: brew style hausfold/tap/scruff
+
+      # `--online` is what checks the homepage and the tag tarball actually
+      # resolve. It also means several calls to api.github.com (the license,
+      # the repo, the release), and unauthenticated that is 60 an hour shared
+      # across every runner on this Azure IP — a rate limit Homebrew reports as
+      # an audit FAILURE, so without the token this job goes red at random, and
+      # most often on the unattended bot push where nobody is watching to
+      # re-run it.
+      #
+      # `--strict` is left off deliberately, and not because its cops skip a
+      # tap (they do not): it turns on the `FormulaAuditStrict` department,
+      # written around homebrew-core's house style, and this gate is here to
+      # catch a formula that stopped installing rather than to argue about
+      # wording we chose. `brew style` above is not the same set — it carries
+      # the Layout, Lint, Naming and Style departments that audit's cops do
+      # not.
+      - name: brew audit
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: brew audit --online hausfold/tap/scruff
+
+      # One arm64 macOS runner, which is where this tap's users are. The
+      # formula itself is architecture-neutral and scruff's own `check` proves
+      # the code on ubuntu and macOS both; what is untested here is the
+      # *formula* on Linux brew or an Intel Mac.
+      - name: brew install
+        run: brew install --build-from-source --verbose hausfold/tap/scruff
+
+      - name: brew test
+        run: brew test hausfold/tap/scruff
