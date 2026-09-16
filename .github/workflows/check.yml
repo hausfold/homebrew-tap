@@ -3,30 +3,43 @@
 # that `brew install` wouldn't catch first, on the one machine that matters.
 #
 # `Formula/scruff.rb` changed that. It COMPILES — a Go build, an ldflags stamp
-# and a test block — and its `url`/`sha256` pair is rewritten here by a BOT, on
-# every scruff release, with no human in the loop (hausfold/scruff, release.yml
+# and a test block — and its `url`/`sha256` pair is rewritten by a BOT, on every
+# scruff release, with no human in the loop (hausfold/scruff, release.yml
 # `bump-tap`). A tarball that was served short, a tag whose shape moved, a
-# formula that stopped building against a newer Go: each of those lands on main
-# unattended and is otherwise discovered by whoever `brew install`s next.
+# formula that stopped building against a newer Go: each of those would
+# otherwise be discovered by whoever `brew install`s next.
 #
-# ⚠️ This job does not GATE that push and cannot — a deploy-key push to `main`
-# is the formula, immediately, with no bottle to fall back to. What it does is
-# run on that push and shorten the window from "until a user complains" to a
-# few minutes. It is a merge condition only for a human PR like the one that
-# added this file. That is the whole scope: the entry that builds, on the
-# platform its users install it from.
+# So the bot does not push to `main` at all. It pushes its rewritten formula to
+# `bump/scruff-v<version>`, this workflow runs there, and `promote` below
+# fast-forwards `main` only once the gate is green. A release whose formula
+# fails leaves users on the PREVIOUS one, which still installs — the strictly
+# better of the two bad days, and the whole reason for the extra hop.
 #
-# pounce and perch stay outside it deliberately. Their lines are CI-owned and
-# rewritten by their own release workflows against artifacts that were already
-# built, signed and notarized upstream, and neither can be installed on a
-# runner without downloading a real release and putting an .app on disk to
-# prove something their release gate proved better.
+# pounce and perch stay outside all of this deliberately, and push straight to
+# `main` as before. Their lines are CI-owned and rewritten by their own release
+# workflows against artifacts that were already built, signed and notarized
+# upstream; neither can be installed on a runner without downloading a real
+# release and putting an .app on disk to prove something their release gate
+# proved better. This job never reads their entries, so gating their bump on it
+# would buy nothing and cost every release a wait.
 name: check
 
 on:
   push:
-    branches: [main]
+    # `main` still runs it: a human landing, and a belt-and-braces re-check of
+    # what promote just fast-forwarded (which, being a GITHUB_TOKEN push, does
+    # not re-trigger this workflow by itself).
+    branches: [main, 'bump/**']
+    # Everything this job inspects, and nothing else. Without it a pounce or
+    # perch bump — near-daily, and touching neither file — pays a full macOS
+    # runner to rebuild an unchanged formula.
+    paths:
+      - Formula/scruff.rb
+      - .github/workflows/check.yml
   pull_request:
+    paths:
+      - Formula/scruff.rb
+      - .github/workflows/check.yml
   workflow_dispatch:
 
 concurrency:
@@ -62,9 +75,11 @@ jobs:
       # resolve. It also means several calls to api.github.com (the license,
       # the repo, the release), and unauthenticated that is 60 an hour shared
       # across every runner on this Azure IP — a rate limit Homebrew reports as
-      # an audit FAILURE, so without the token this job goes red at random, and
-      # most often on the unattended bot push where nobody is watching to
-      # re-run it.
+      # an audit FAILURE, so without the token this job goes red at random —
+      # and now that a red gate HOLDS a release's formula on the bump branch
+      # instead of merely reporting on one already live, a flaky red is a
+      # release that silently didn't land. The token is what keeps this job
+      # measuring the formula rather than the runner's luck.
       #
       # `--strict` is left off deliberately, and not because its cops skip a
       # tap (they do not): it turns on the `FormulaAuditStrict` department,
@@ -87,3 +102,61 @@ jobs:
 
       - name: brew test
         run: brew test hausfold/tap/scruff
+
+  # The hop that makes the gate a precondition rather than a post-mortem. Only
+  # a `bump/**` branch gets promoted, and only behind a green `formula`; a
+  # human PR still merges the ordinary way, and a push straight to `main`
+  # (pounce, perch, a hand-edit) never comes through here at all.
+  #
+  # GITHUB_TOKEN with `contents: write` is enough to push this repo's own main,
+  # so nothing here needs the deploy key the upstream release used, and no new
+  # credential exists to expire. That the push does not re-trigger this
+  # workflow is deliberate: the gate already ran on these exact bytes.
+  promote:
+    name: promote to main
+    needs: formula
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/bump/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Two releases in flight would otherwise race for main. Serialize rather
+    # than cancel: a cancelled promote is a green release whose formula never
+    # landed, which is the one outcome this whole design exists to prevent.
+    concurrency:
+      group: promote
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward main and drop the branch
+        run: |
+          git config user.name "haus-release[bot]"
+          git config user.email "haus-release@users.noreply.github.com"
+
+          # A pounce or perch bump landing between the gate and this push makes
+          # main non-fast-forward. Replay onto it and retry: those touch
+          # Formula/pounce.rb and Casks/perch.rb, which this gate never read,
+          # so the rebased tree differs from the tested one only in lines no
+          # test looked at. A conflict here is a real one — two scruff releases
+          # overlapping — and is left red rather than resolved by a robot.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main || {
+              echo "::error::$GITHUB_REF_NAME will not replay onto main — resolve it by hand, the formula is still on the previous release"
+              exit 1
+            }
+            if git push origin HEAD:main; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then
+              echo "::error::main moved under three promote attempts — re-run this job"
+              exit 1
+            fi
+            echo "main moved, retrying"
+          done
+
+          # Only once main has it. A branch left behind is the visible record
+          # of a release whose formula did not land.
+          git push origin --delete "$GITHUB_REF_NAME"

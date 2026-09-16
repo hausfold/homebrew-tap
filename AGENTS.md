@@ -30,14 +30,27 @@ build of the CLI from its tag tarball. No tool bug is fixed here. Wiring:
 `.github/workflows/check.yml` runs `brew style`, `brew audit --online`,
 `brew install --build-from-source` and `brew test` — **over
 `Formula/scruff.rb` alone**, on a macOS runner. It exists because that entry
-both compiles and is rewritten by a bot: scruff's release pushes a new
-`url`/`sha256` here with nobody watching. ⚠️ It does **not** gate that push and
-cannot — a deploy-key push to `main` *is* the formula, with no bottle to fall
-back on. It runs on that push and shortens the window from "until someone
-complains" to a few minutes, and it is a real merge condition only on a human
-PR. pounce and perch stay outside it: their
-release gates already built, signed and notarized what those entries place, and
-installing an `.app` on a runner proves less than that did. The workshop's
+both compiles and is rewritten by a bot, and it **gates** that rewrite:
+
+- scruff's release pushes its new `url`/`sha256` to **`bump/scruff-v<version>`**,
+  never to `main`.
+- `check` runs on that branch.
+- Green, and the `promote` job fast-forwards `main` and deletes the branch.
+  Red, and `main` keeps the previous formula — users install a release-old
+  `scruff` that works, instead of a current one that doesn't.
+
+So a red gate now means **a release whose formula didn't land**: the branch is
+still there, the run is still red, and the fix is to make it green and re-run
+`promote`, never to push the formula by hand. A release cut hours ago whose
+`brew install` still fetches the old tag is this, not a slow CDN.
+
+**pounce and perch push straight to `main` as before, and should.** The gate
+never reads their entries, so routing them through a branch would gate nothing
+and cost each release the wait; their own release workflows already built,
+signed and notarized what those entries place. For the same reason `check` is
+`paths`-filtered to `Formula/scruff.rb` and its own workflow file — a pounce
+bump does not spend a macOS runner re-proving an untouched formula. The
+workshop's
 [`docs/ci.md`](https://github.com/hausfold/workshop/blob/main/docs/ci.md) is the
 family's rules; this gate follows them.
 
