@@ -39,17 +39,29 @@ both compiles and is rewritten by a bot, and it **gates** that rewrite:
   Red, and `main` keeps the previous formula — users install a release-old
   `scruff` that works, instead of a current one that doesn't.
 
-So a red gate now means **a release whose formula didn't land**: the branch is
-still there, the run is still red, and the fix is to make it green and re-run
-`promote`, never to push the formula by hand. A release cut hours ago whose
-`brew install` still fetches the old tag is this, not a slow CDN.
+So a bump branch still standing means **a release whose formula didn't land**:
+its run is red or cancelled, `main` is on the previous tag, and a release cut
+hours ago whose `brew install` still fetches the old tag is this, not a slow
+CDN. (A branch left beside a *green* run is the harmless case — the promote
+warned that it could not delete it, and the next release force-pushes over it.)
+
+To recover: fix the formula, then **Re-run failed jobs** on that `check` run.
+Not "re-run `promote`" — it is `needs: formula`, so a red gate leaves it
+*skipped*, and a skipped job cannot be re-run alone. Pushing the formula to
+`main` by hand is never the answer; it is the exact thing the gate is here to
+stop.
 
 **pounce and perch push straight to `main` as before, and should.** The gate
 never reads their entries, so routing them through a branch would gate nothing
 and cost each release the wait; their own release workflows already built,
-signed and notarized what those entries place. For the same reason `check` is
-`paths`-filtered to `Formula/scruff.rb` and its own workflow file — a pounce
-bump does not spend a macOS runner re-proving an untouched formula. The
+signed and notarized what those entries place.
+
+That is also why `main` has **no push trigger at all** any more. The bot that
+needed one stopped pushing there; promote's own push cannot re-trigger a
+workflow; and what is left landing on `main` is pounce's and perch's near-daily
+bumps, which would otherwise spend a macOS runner rebuilding a formula they did
+not touch. A hand-edit to `main` — which the CI-owned rules above allow only to
+bootstrap an entry — is checked by running `check` from the Actions tab. The
 workshop's
 [`docs/ci.md`](https://github.com/hausfold/workshop/blob/main/docs/ci.md) is the
 family's rules; this gate follows them.
