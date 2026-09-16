@@ -157,6 +157,15 @@ jobs:
             echo "main moved, retrying"
           done
 
-          # Only once main has it. A branch left behind is the visible record
-          # of a release whose formula did not land.
-          git push origin --delete "$GITHUB_REF_NAME"
+          # Only once main has it — a branch left behind is the visible record
+          # of a release whose formula did not land, so it must never be
+          # deleted on any path but this one.
+          #
+          # Not fatal, though. Past the push above the formula IS live, and a
+          # red job here would read as exactly the failure that did not happen;
+          # a leftover branch is tidied by the next release's force-push. Same
+          # reason this is the last command in the job: GitHub may cancel a run
+          # whose ref has just been deleted, and there is nothing after it left
+          # to cancel.
+          git push origin --delete "$GITHUB_REF_NAME" \
+            || echo "::warning::main has the formula; $GITHUB_REF_NAME could not be deleted, remove it by hand"
