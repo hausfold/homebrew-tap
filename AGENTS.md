@@ -42,8 +42,11 @@ both compiles and is rewritten by a bot, and it **gates** that rewrite:
 So a bump branch still standing means **a release whose formula didn't land**:
 its run is red or cancelled, `main` is on the previous tag, and a release cut
 hours ago whose `brew install` still fetches the old tag is this, not a slow
-CDN. (A branch left beside a *green* run is the harmless case — the promote
-warned that it could not delete it, and the next release force-pushes over it.)
+CDN. `bench release scruff` watches this run after its own goes green and says
+which it was — live, red, never ran, still running — on the screen the release
+was cut from. (A branch left beside a *green* run is the harmless case — the
+promote warned that it could not delete it, and the next release force-pushes
+over it.)
 
 To recover: fix the formula, then **Re-run failed jobs** on that `check` run.
 Not "re-run `promote`" — it is `needs: formula`, so a red gate leaves it
