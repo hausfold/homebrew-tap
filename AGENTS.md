@@ -42,9 +42,12 @@ both compiles and is rewritten by a bot, and it **gates** that rewrite:
 So a bump branch still standing means **a release whose formula didn't land**:
 its run is red or cancelled, `main` is on the previous tag, and a release cut
 hours ago whose `brew install` still fetches the old tag is this, not a slow
-CDN. `bench release scruff` watches this run after its own goes green and says
-which it was — live, red, never ran, still running — on the screen the release
-was cut from. (A branch left beside a *green* run is the harmless case — the
+CDN. `bench release scruff` does **not** watch this run: its own watch ends when
+scruff's release run goes green, and it then says the formula is still pending on
+the tap's gate and prints the `gh run list --repo hausfold/homebrew-tap
+--workflow check -L 3` that answers which way it went. So the release screen
+tells you where to look and never tells you it landed. (A branch left beside a
+*green* run is the harmless case — the
 promote warned that it could not delete it, and the next release force-pushes
 over it.)
 
