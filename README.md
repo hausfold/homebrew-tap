@@ -3,11 +3,9 @@
 The Homebrew tap for the [hausfold](https://github.com/hausfold) tools.
 
 ```sh
-brew tap hausfold/tap
-
-brew install scruff           # then: scruff skill install
-brew install pounce           # then: brew services start pounce
-brew install --cask perch
+brew install hausfold/tap/scruff        # then: scruff skill install
+brew install hausfold/tap/pounce        # then: brew services start pounce
+brew install --cask hausfold/tap/perch
 ```
 
 | | |
