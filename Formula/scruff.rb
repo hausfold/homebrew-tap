@@ -1,8 +1,8 @@
 class Scruff < Formula
   desc "Worktree lifecycle for parallel coding agents: park, resume, PR-verified reap"
   homepage "https://github.com/hausfold/scruff"
-  url "https://github.com/hausfold/scruff/archive/refs/tags/v1.5.1.tar.gz"
-  sha256 "1b284b23d32859277c5dabf0cd2234595e03108155c88d80d12ed8cf1ece6940"
+  url "https://github.com/hausfold/scruff/archive/refs/tags/v1.6.0.tar.gz"
+  sha256 "4c7fae549e424ad737fc67ac7dbb49da9aacc319dcfdb562100a9bb25ddf3f55"
   license "MIT"
   head "https://github.com/hausfold/scruff.git", branch: "main"
 
